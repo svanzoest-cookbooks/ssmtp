@@ -1,6 +1,6 @@
 #
 # Cookbook Name:: ssmtp
-# Recipe:: default
+# Attributes:: ssmtp
 #
 # Copyright 2009, Sander van Zoest
 # Copyright 2012, Mike Adolphs
@@ -18,26 +18,17 @@
 # limitations under the License.
 #
 
-package "ssmtp" do
-  action :upgrade
-end
+default['ssmtp']['mailhub_name'] = 'localhost'
+default['ssmtp']['mailhub_port'] = 587
+default['ssmtp']['hostname'] = node.hostname
+default['ssmtp']['rewrite_domain'] = node.domain
 
-case node['ssmtp']['credential_method']
-when 'data_bag'
-  data_bag = Chef::EncryptedDataBagItem.load('mail', 'ssmtp')
-  username = data_bag['username']
-  password = data_bag['password']
-when 'plain'
-  username = node['ssmtp']['auth_username']
-  password = node['ssmtp']['auth_password']
-end
+default['ssmtp']['from_line_override'] = true
 
-template "/etc/ssmtp/ssmtp.conf" do
-  source "ssmtp.conf.erb"
-  owner "root"
-  group "root"
-  mode  0640
-  variables(
-    :auth_username    => username,
-    :auth_password    => password)
-end
+default['ssmtp']['credential_method'] = 'data_bag'         # or plain
+
+default['ssmtp']['root'] = false
+default['ssmtp']['auth_method'] = false
+default['ssmtp']['auth_username'] = false
+default['ssmtp']['auth_password'] = false
+default['ssmtp']['use_starttls'] = true
