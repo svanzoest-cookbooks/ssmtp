@@ -32,3 +32,4 @@ default['ssmtp']['auth_method'] = false
 default['ssmtp']['auth_username'] = false
 default['ssmtp']['auth_password'] = false
 default['ssmtp']['use_starttls'] = true
+default['ssmtp']['use_tls'] = true

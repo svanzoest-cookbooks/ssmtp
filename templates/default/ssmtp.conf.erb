@@ -25,11 +25,18 @@ rewriteDomain=<%= node['ssmtp']['rewrite_domain'] %>
 FromLineOverride=YES
 <% end %>
 
-<% if node['ssmtp']['use_starttls'] %>
+<% if node['ssmtp']['use_starttls'] || node['ssmtp']['use_tls'] %>
 # Use SSL/TLS to send secure messages to server.
+<% end -%>
+<% if node['ssmtp']['use_starttls'] %>
 UseSTARTTLS=YES
 <% else %>
 UseSTARTTLS=NO
+<% end %>
+<% if node['ssmtp']['use_tls'] %>
+UseTLS=YES
+<% else %>
+UseTLS=NO
 <% end %>
 
 # user/pass used to connect to the MTA
