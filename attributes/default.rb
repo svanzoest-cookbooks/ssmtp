@@ -20,8 +20,8 @@
 
 default['ssmtp']['mailhub_name'] = 'localhost'
 default['ssmtp']['mailhub_port'] = 587
-default['ssmtp']['hostname'] = node.hostname
-default['ssmtp']['rewrite_domain'] = node.domain
+default['ssmtp']['hostname'] = node['hostname']
+default['ssmtp']['rewrite_domain'] = node['domain']
 
 default['ssmtp']['from_line_override'] = true
 
