@@ -1,5 +1,5 @@
 chef_api :config
-#site :opscode
+site :opscode
 
 metadata
 
@@ -7,6 +7,7 @@ group :test do
   cookbook "apt"
   cookbook "yum"
   cookbook "minitest-handler"
+  cookbook "sysctl"
 
   # https://github.com/opscode/test-kitchen/issues/28
   require 'pathname'
