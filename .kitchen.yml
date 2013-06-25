@@ -22,7 +22,9 @@ platforms:
 
 suites:
 - name: default
-  run_list: ["recipe[sysctl]"]
+  run_list: ["recipe[ssmtp]"]
+  data_bag_path: "test/integration/default/data_bags"
+  encrypted_data_bag_secret_key_path: "test/integration/default/encrypted_data_bag_secret"
   attributes:
     ssmtp:
       root: 'user@example.com'
