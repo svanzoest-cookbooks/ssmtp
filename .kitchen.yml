@@ -22,7 +22,7 @@ platforms:
 
 suites:
 - name: default
-  run_list: ["recipe[ssmtp]"]
+  run_list: ["recipe[ssmtp]", "recipe[minitest-handler]"]
   data_bag_path: "test/integration/default/data_bags"
   encrypted_data_bag_secret_key_path: "test/integration/default/encrypted_data_bag_secret"
   attributes:

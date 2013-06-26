@@ -35,7 +35,7 @@ end
 template "/etc/ssmtp/ssmtp.conf" do
   source "ssmtp.conf.erb"
   owner "root"
-  group "root"
+  group "mail"
   mode  0640
   variables(
     :auth_username    => username,
