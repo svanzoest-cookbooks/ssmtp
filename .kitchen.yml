@@ -29,7 +29,8 @@ suites:
     ssmtp:
       root: 'user@example.com'
       rewrite_domain: 'example.com'
-      mailhub_name: 'smtp.example.com'
+      mailhub_name: 'localhost'
+      mailhub_port: 2525
       from_line_override: true
       credential_method: 'data_bag'
-      use_starttls: true
+      # use_starttls: true
