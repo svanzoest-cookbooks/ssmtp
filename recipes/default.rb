@@ -18,6 +18,10 @@
 # limitations under the License.
 #
 
+if platform?('redhat', 'centos', 'fedora')
+    include_recipe 'yum::epel'
+end
+
 package "ssmtp" do
   action :upgrade
 end
