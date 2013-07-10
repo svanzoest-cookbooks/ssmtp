@@ -5,6 +5,17 @@ find_mailtrap_bin() {
 }
 
 wait_for_mailtrap_ready() {
+  # Install netstat first if not found
+  if [ ! -x "$(which netstat)" ]; then
+    if [ -x "$(which yum)" ]; then
+      yum install -y net-tools
+    elif [ -x "$(which apt-get)" ]; then
+      apt-get install -y net-tools
+    fi
+  fi
+
+  # Check whether sendmail is running with netstat, wait max 5 seconds for it to be ready
+  # Prevents test fails due to race condition
   local max_wait=0;
   while ! netstat -tln | grep -q ':2525'; do sleep 1; let max_wait++; [ $max_wait -gt 5 ] && break; done
 }
