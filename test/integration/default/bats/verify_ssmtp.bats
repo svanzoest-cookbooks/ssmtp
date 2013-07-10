@@ -5,15 +5,15 @@ find_mailtrap_bin() {
 }
 
 wait_for_mailtrap_ready() {
-  # Install netstat first if not found
-  if [ ! -x "$(which netstat)" ]; then
+  # Install telnet first if not found
+  if [ ! -x "$(which telnet)" ]; then
     if [ -x "$(which yum)" ]; then
-      yum install -y net-tools
+      yum install -y telnet
     elif [ -x "$(which apt-get)" ]; then
-      apt-get install -y net-tools
+      apt-get install -y telnet
     fi
   fi
-  [ -x $(which netstat) ] || echo 'ERROR: Could not install netstat'
+  [ -x $(which telnet) ] || echo 'ERROR: Could not install telnet'
 
   ## Debugging
   # ps aux | grep mailtrap && echo 'mailtrap RUNNING' || echo 'mailtrap not running'
@@ -24,11 +24,11 @@ wait_for_mailtrap_ready() {
   local counter=0;
   local result=0;
   while [ $result -ne 0 ]; do
-    netstat -tln | grep -q ':2525'  ## TODO: Try running ruby with TCPSocket connect test?
+    echo -e 'HELO\r\nQUIT' | telnet localhost 2525 2>/dev/null | grep -q '^220'
     result=$?
-    sleep 2;
+    sleep 1;
     counter=$((counter+1));
-    [ $counter -gt 10 ] && break;
+    [ $counter -gt 5 ] && break;
   done
 }
 
@@ -60,15 +60,13 @@ setup() {
   fi
   wait_for_mailtrap_ready
   ## Debugging
-  # $RUBY_BIN $MAILTRAP_BIN status
-  # whoami
+  $RUBY_BIN $MAILTRAP_BIN status
 }
 
 teardown() {
   if [ -n "$MAILTRAP_BIN" ]; then
-    : # $RUBY_BIN $MAILTRAP_BIN stop #1>/dev/null
+    $RUBY_BIN $MAILTRAP_BIN stop 1>/dev/null
   fi
-  set +x
 }
 
 test_ssmtp_as_root() {
