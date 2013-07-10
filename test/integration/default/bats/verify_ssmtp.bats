@@ -13,11 +13,23 @@ wait_for_mailtrap_ready() {
       apt-get install -y net-tools
     fi
   fi
+  [ -x $(which netstat) ] || echo 'ERROR: Could not install netstat'
+
+  ## Debugging
+  # ps aux | grep mailtrap && echo 'mailtrap RUNNING' || echo 'mailtrap not running'
+  # $RUBY_BIN $MAILTRAP_BIN status
 
   # Check whether sendmail is running with netstat, wait max 5 seconds for it to be ready
   # Prevents test fails due to race condition
-  local max_wait=0;
-  while ! netstat -tln | grep -q ':2525'; do sleep 1; let max_wait++; [ $max_wait -gt 5 ] && break; done
+  local counter=0;
+  local result=0;
+  while [ $result -ne 0 ]; do
+    netstat -tln | grep -q ':2525'  ## TODO: Try running ruby with TCPSocket connect test?
+    result=$?
+    sleep 2;
+    counter=$((counter+1));
+    [ $counter -gt 10 ] && break;
+  done
 }
 
 setup() {
@@ -26,6 +38,7 @@ setup() {
   # set -x
   vagrant_groups=$(groups | sed -e 's/[[:space:]]*vagrant[[:space:]]*//' -e 's/$/ mail/' -e 's/^[[:space:]]*//'  -e 's/[[:space:]]/,/g')
   sudo usermod -G $vagrant_groups vagrant
+  export GEM_PATH='/opt/chef/embedded/lib/ruby/gems/1.9.1'
   export GEM_BIN='/opt/chef/embedded/bin/gem'
   export GEM_OPTS='--no-rdoc --no-ri'
   export RUBY_BIN='/opt/chef/embedded/bin/ruby'
@@ -46,12 +59,16 @@ setup() {
     $RUBY_BIN $MAILTRAP_BIN start || echo 'ERROR: Could not start mailtrap for sendmail testing...'
   fi
   wait_for_mailtrap_ready
+  ## Debugging
+  # $RUBY_BIN $MAILTRAP_BIN status
+  # whoami
 }
 
 teardown() {
   if [ -n "$MAILTRAP_BIN" ]; then
-    $RUBY_BIN $MAILTRAP_BIN stop 1>/dev/null
+    : # $RUBY_BIN $MAILTRAP_BIN stop #1>/dev/null
   fi
+  set +x
 }
 
 test_ssmtp_as_root() {
