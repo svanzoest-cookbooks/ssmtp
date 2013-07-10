@@ -38,4 +38,5 @@ suites:
       mailhub_port: 2525
       from_line_override: true
       credential_method: 'data_bag'
-      # use_starttls: true
+      use_starttls: false
+      use_tls: false
