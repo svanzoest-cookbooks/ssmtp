@@ -19,14 +19,14 @@ wait_for_mailtrap_ready() {
   # ps aux | grep mailtrap && echo 'mailtrap RUNNING' || echo 'mailtrap not running'
   # $RUBY_BIN $MAILTRAP_BIN status
 
-  # Check whether sendmail is running with netstat, wait max 5 seconds for it to be ready
+  # Check whether sendmail is running with netstat, wait max tries for it to be ready
   # Prevents test fails due to race condition
   local counter=0;
-  local result=0;
+  local result=1;
   while [ $result -ne 0 ]; do
     echo -e 'HELO\r\nQUIT' | telnet localhost 2525 2>/dev/null | grep -q '^220'
     result=$?
-    sleep 1;
+    sleep 2; # Even with sleep 1 & the telnet check we still end up with a race condition?!
     counter=$((counter+1));
     [ $counter -gt 5 ] && break;
   done
@@ -36,12 +36,17 @@ setup() {
   ## Debugging
   # export PS4='(${BASH_SOURCE}:${LINENO}): - [${SHLVL},${BASH_SUBSHELL},$?] $ '
   # set -x
+  set +e
+  set +T
+  set +E
+  # Append mail to the list of groups the vagrant user is already in
   vagrant_groups=$(groups | sed -e 's/[[:space:]]*vagrant[[:space:]]*//' -e 's/$/ mail/' -e 's/^[[:space:]]*//'  -e 's/[[:space:]]/,/g')
-  sudo usermod -G $vagrant_groups vagrant
+  sudo usermod -G $vagrant_groups vagrant # Allow vagrant user to send mail for our tests
   export GEM_PATH='/opt/chef/embedded/lib/ruby/gems/1.9.1'
   export GEM_BIN='/opt/chef/embedded/bin/gem'
   export GEM_OPTS='--no-rdoc --no-ri'
   export RUBY_BIN='/opt/chef/embedded/bin/ruby'
+  export SSMTP_BIN="$(which ssmtp)"
   export TEST_EMAIL_ADDRESS='user@example.com'
   export MAILTRAP_VERSION='0.2.3'
   export MAILTRAP_PRE_RELEASE_VERSION='0.2.3.20130709144258'
@@ -60,21 +65,30 @@ setup() {
   fi
   wait_for_mailtrap_ready
   ## Debugging
-  $RUBY_BIN $MAILTRAP_BIN status
+  # $RUBY_BIN $MAILTRAP_BIN status
+  # whoami
+  set -e
+  set -E
+  set -T
 }
 
-teardown() {
-  if [ -n "$MAILTRAP_BIN" ]; then
-    $RUBY_BIN $MAILTRAP_BIN stop 1>/dev/null
-  fi
-}
+# teardown() {
+#   if [ -n "$MAILTRAP_BIN" ]; then
+#     $RUBY_BIN $MAILTRAP_BIN stop 1>/dev/null
+#   fi
+    # set +x
+# }
 
 test_ssmtp_as_root() {
-  echo test | /sbin/ssmtp -v -s 'testing ssmtp as root' $TEST_EMAIL_ADDRESS
+  echo test | $SSMTP_BIN -v -s 'testing ssmtp as root' $TEST_EMAIL_ADDRESS
 }
 
 test_ssmtp_as_vagrant() {
-  su - vagrant -c "echo test | /sbin/ssmtp -v -s 'testing ssmtp as vagrant' $TEST_EMAIL_ADDRESS"
+  su - vagrant -c "echo test | $SSMTP_BIN -v -s 'testing ssmtp as vagrant' $TEST_EMAIL_ADDRESS"
+}
+
+@test "verify ssmtp binary was installed" {
+  [ -x "$SSMTP_BIN" ] || (echo "ERROR: Looks like the ssmtp binary ($SSMTP_BIN) was not installed or not executable..." && echo 'exit 1')
 }
 
 @test "verify sending mail as root" {
