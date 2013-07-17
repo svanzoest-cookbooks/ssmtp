@@ -1,7 +1,7 @@
 #!/usr/bin/env bats
 
 find_mailtrap_bin() {
-  export MAILTRAP_BIN=$(find $GEM_PATH -name 'mailtrap' -type f -executable | sort | head -n1)
+  export MAILTRAP_BIN=$(find $GEM_PATH -name 'mailtrap' -type f -perm /111 | sort | head -n1)
 }
 
 wait_for_mailtrap_ready() {
@@ -40,13 +40,13 @@ setup() {
   set +T
   set +E
   # Append mail to the list of groups the vagrant user is already in
-  vagrant_groups=$(groups | sed -e 's/[[:space:]]*vagrant[[:space:]]*//' -e 's/$/ mail/' -e 's/^[[:space:]]*//'  -e 's/[[:space:]]/,/g')
-  sudo usermod -G $vagrant_groups vagrant # Allow vagrant user to send mail for our tests
+  vagrant_groups=$(sudo su - vagrant -c "groups | sed -e 's/[[:space:]]*vagrant[[:space:]]*//' -e 's/\$/ mail/' -e 's/^[[:space:]]*//'  -e 's/[[:space:]]/,/g'")
+  sudo su - -c "usermod -G $vagrant_groups vagrant" # Allow vagrant user to send mail for our tests
   export GEM_PATH='/opt/chef/embedded/lib/ruby/gems/1.9.1'
   export GEM_BIN='/opt/chef/embedded/bin/gem'
   export GEM_OPTS='--no-rdoc --no-ri'
   export RUBY_BIN='/opt/chef/embedded/bin/ruby'
-  export SSMTP_BIN="$(which ssmtp)"
+  export SSMTP_BIN="$(sudo su - -c 'which ssmtp')" # On CentOS-59, sbin is only in root's PATH
   export TEST_EMAIL_ADDRESS='user@example.com'
   export MAILTRAP_VERSION='0.2.3'
   export MAILTRAP_PRE_RELEASE_VERSION='0.2.3.20130709144258'
@@ -72,19 +72,21 @@ setup() {
   set -T
 }
 
-# teardown() {
-#   if [ -n "$MAILTRAP_BIN" ]; then
-#     $RUBY_BIN $MAILTRAP_BIN stop 1>/dev/null
-#   fi
+teardown() {
+   if [ -n "$MAILTRAP_BIN" ]; then
+     $RUBY_BIN $MAILTRAP_BIN stop 1>/dev/null
+   fi
     # set +x
-# }
+}
 
 test_ssmtp_as_root() {
-  echo test | $SSMTP_BIN -v -s 'testing ssmtp as root' $TEST_EMAIL_ADDRESS
+  sudo su - -c "echo -e 'Subject: testing ssmtp as root\ntest\n.' | $SSMTP_BIN -v $TEST_EMAIL_ADDRESS"
+  grep -qr 'testing ssmtp as root' /var/tmp/mailtrap/*
 }
 
 test_ssmtp_as_vagrant() {
-  su - vagrant -c "echo test | $SSMTP_BIN -v -s 'testing ssmtp as vagrant' $TEST_EMAIL_ADDRESS"
+  sudo su - vagrant -c "echo -e 'Subject: testing ssmtp as vagrant\ntest\n.' | $SSMTP_BIN -v $TEST_EMAIL_ADDRESS"
+  grep -qr 'testing ssmtp as vagrant' /var/tmp/mailtrap/*
 }
 
 @test "verify ssmtp binary was installed" {
