@@ -5,15 +5,6 @@ find_mailtrap_bin() {
 }
 
 wait_for_mailtrap_ready() {
-  # Install telnet first if not found
-  if [ ! -x "$(which telnet)" ]; then
-    if [ -x "$(which yum)" ]; then
-      yum install -y telnet
-    elif [ -x "$(which apt-get)" ]; then
-      apt-get install -y telnet
-    fi
-  fi
-  [ -x $(which telnet) ] || echo 'ERROR: Could not install telnet'
 
   ## Debugging
   # ps aux | grep mailtrap && echo 'mailtrap RUNNING' || echo 'mailtrap not running'
@@ -39,6 +30,18 @@ setup() {
   set +e
   set +T
   set +E
+
+  # Install telnet, wget first if not found
+  test_deps='telnet wget'
+  for dep in $test_deps; do
+    if [ -x "$(which yum)" ]; then
+      [ ! -x "$(which $dep)" ] && yum install -y $dep
+    elif [ -x "$(which apt-get)" ]; then
+      [ ! -x "$(which $dep)" ] && apt-get install -y $dep
+    fi
+    [ -x $(which $dep) ] || echo "ERROR: Could not install $dep"
+  done
+  
   # Append mail to the list of groups the vagrant user is already in
   vagrant_groups=$(sudo su - vagrant -c "groups | sed -e 's/[[:space:]]*vagrant[[:space:]]*//' -e 's/\$/ mail/' -e 's/^[[:space:]]*//'  -e 's/[[:space:]]/,/g'")
   sudo su - -c "usermod -G $vagrant_groups vagrant" # Allow vagrant user to send mail for our tests
