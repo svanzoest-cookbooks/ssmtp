@@ -24,6 +24,11 @@ platforms:
     box: opscode-fedora-18
     box_url: https://opscode-vm-bento.s3.amazonaws.com/vagrant/opscode-fedora-18_provisionerless.box
     require_chef_omnibus: true
+- name: scientific-6
+  driver_config:
+    box: scientific-6-minimal
+    box_url: http://lyte.id.au/vagrant/sl6-64-lyte.box
+    require_chef_omnibus: true
 
 suites:
 - name: default
