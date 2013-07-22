@@ -18,7 +18,7 @@
 # limitations under the License.
 #
 
-if platform?('redhat', 'centos', 'fedora')
+if platform?('redhat', 'centos', 'scientific')
   include_recipe 'yum::epel'
 end
 
