@@ -19,6 +19,11 @@ platforms:
   driver_config:
     box: opscode-centos-5.9
     box_url: https://opscode-vm.s3.amazonaws.com/vagrant/opscode_centos-5.9_chef-11.4.0.box
+- name: fedora-18
+  driver_config:
+    box: opscode-fedora-18
+    box_url: https://opscode-vm-bento.s3.amazonaws.com/vagrant/opscode-fedora-18_provisionerless.box
+    require_chef_omnibus: true
 
 suites:
 - name: default
@@ -29,7 +34,9 @@ suites:
     ssmtp:
       root: 'user@example.com'
       rewrite_domain: 'example.com'
-      mailhub_name: 'smtp.example.com'
+      mailhub_name: 'localhost'
+      mailhub_port: 2525
       from_line_override: true
       credential_method: 'data_bag'
-      use_starttls: true
+      use_starttls: false
+      use_tls: false
