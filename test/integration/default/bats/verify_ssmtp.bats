@@ -61,7 +61,9 @@ setup() {
     $RUBY_BIN $MAILTRAP_BIN status | grep -q 'mailtrap: running' || $RUBY_BIN $MAILTRAP_BIN start
   else
     # get mailtrap-0.2.3.gem from pre-release source until official 0.2.3 is available via rubygems
-    $GEM_BIN install mailtrap  --version ">= ${MAILTRAP_VERSION}" ${GEM_OPTS} | ( wget $MAILTRAP_URI -O /tmp/${MAILTRAP_GEM_PACKAGE} && $GEM_BIN install /tmp/${MAILTRAP_GEM_PACKAGE} ${GEM_OPTS} )
+    sudo $GEM_BIN install mailtrap  --version ">= ${MAILTRAP_VERSION}" ${GEM_OPTS} | ( wget $MAILTRAP_URI -O /tmp/${MAILTRAP_GEM_PACKAGE} && sync && sleep 1 && sudo $GEM_BIN install /tmp/${MAILTRAP_GEM_PACKAGE} ${GEM_OPTS} )
+    sync
+    sleep 1
     find_mailtrap_bin
     [ ! -x "$MAILTRAP_BIN" ] && echo "ERROR: Could not install mailtrap for sendmail testing..." && exit 1
     $RUBY_BIN $MAILTRAP_BIN start || echo 'ERROR: Could not start mailtrap for sendmail testing...'
