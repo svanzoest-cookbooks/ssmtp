@@ -4,7 +4,6 @@ metadata
 
 group :integration do
   cookbook 'apt', '~> 2.6'
-  cookbook 'yum', '~> 2.4'
   cookbook "minitest-handler", "~> 1.3.2"
 
   # https://github.com/opscode/test-kitchen/issues/28
