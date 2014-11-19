@@ -36,6 +36,12 @@ platforms:
   driver_config:
     box: opscode-centos-6.4
     box_url: https://opscode-vm.s3.amazonaws.com/vagrant/opscode_centos-6.4_chef-11.4.0.box
+  attributes:
+    yum:
+      epel:
+        mirrorlist: http://mirrors.fedoraproject.org/metalink?repo=epel-6&arch=$basearch
+        gpgkey: http://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-6
+        sslverify: false
 - name: centos-5.9
   driver_config:
     box: opscode-centos-5.9
