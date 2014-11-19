@@ -19,7 +19,7 @@
 # limitations under the License.
 #
 
-include_recipe 'yum-epel' if platform?('redhat', 'centos', 'fedora')
+include_recipe 'yum-epel' if platform?('redhat', 'centos', 'scientific')
 
 package 'ssmtp' do
   action :upgrade
