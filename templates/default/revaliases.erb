@@ -1,0 +1,14 @@
+# Dropped off by Chef, thanks!
+#
+# sSMTP aliases
+#
+# Format:	local_account:outgoing_address:mailhub
+#
+# Example: root:your_login@your.domain:mailhub.your.domain[:port]
+# where [:port] is an optional port number that defaults to 25.
+
+<% if node['ssmtp']['aliases'] %>
+<% node['ssmtp']['aliases'].each_pair do |user, email| %>
+<%= "#{index}:#{email}:#{node['ssmtp']['mailhub_name']}:#{node['ssmtp']['mailhub_port']}" %>
+<% end %>
+<% end %>

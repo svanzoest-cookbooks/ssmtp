@@ -24,7 +24,7 @@ default['ssmtp']['hostname'] = node['fqdn']
 default['ssmtp']['rewrite_domain'] = node['domain']
 
 default['ssmtp']['from_line_override'] = true
-
+default['ssmtp']['aliases'] = false
 default['ssmtp']['credential_method'] = 'data_bag' # or plain
 
 default['ssmtp']['config_owner'] = 'root'

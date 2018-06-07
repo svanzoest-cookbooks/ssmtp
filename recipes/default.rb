@@ -45,3 +45,10 @@ template '/etc/ssmtp/ssmtp.conf' do
     'auth_password'    => password
   )
 end
+
+template '/etc/ssmtp/revaliases' do
+  source 'revaliases.erb'
+  owner node['ssmtp']['config_owner']
+  group node['ssmtp']['config_group']
+  mode node['ssmtp']['config_mode']
+end
