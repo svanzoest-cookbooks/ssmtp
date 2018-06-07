@@ -9,6 +9,6 @@
 
 <% if node['ssmtp']['aliases'] %>
 <% node['ssmtp']['aliases'].each_pair do |user, email| %>
-<%= "#{index}:#{email}:#{node['ssmtp']['mailhub_name']}:#{node['ssmtp']['mailhub_port']}" %>
+<%= "#{user}:#{email}:#{node['ssmtp']['mailhub_name']}:#{node['ssmtp']['mailhub_port']}" %>
 <% end %>
 <% end %>
