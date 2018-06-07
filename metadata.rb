@@ -6,7 +6,7 @@ description 'Installs/Configures ssmtp'
 long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))
 issues_url 'https://github.com/svanzoest-cookbooks/ssmtp/issues'
 source_url 'https://github.com/svanzoest-cookbooks/ssmtp/'
-version '0.5.0'
+version '0.6.0'
 supports 'debian'
 supports 'ubuntu'
 supports 'centos'
